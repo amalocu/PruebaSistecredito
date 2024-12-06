@@ -1,0 +1,48 @@
+BEGIN
+    DROP DATABASE PruebaSisteCredito
+END
+GO
+CREATE DATABASE PruebaSisteCredito
+
+GO
+
+USE PruebaSisteCredito
+
+GO
+
+CREATE TABLE Areas (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100) NOT NULL,
+    AdminId INT NOT NULL
+)
+
+GO
+
+CREATE TABLE Employees (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100) NOT NULL,
+    Position NVARCHAR(50) NOT NULL,
+    AreaId INT NOT NULL,
+    LeaderId INT ,
+    IsManager BIT DEFAULT 0,
+)
+
+GO
+
+CREATE TABLE Overtime (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    EmployeeId INT NOT NULL,
+    StartDate DATETIME2 DEFAULT GETDATE(),
+    FinishDate DATETIME2 DEFAULT GETDATE(),
+    HoursWorked NUMERIC(5,2) NOT NULL,
+    Reason NVARCHAR(250) NOT NULL,
+    Status NVARCHAR(20) DEFAULT 'Pending',
+    CreatedAt DATETIME2 DEFAULT GETDATE(),
+    UserId INT NULL,
+    FOREIGN KEY (EmployeeId) REFERENCES Employees(Id)
+
+)
+
+GO
+
+GO

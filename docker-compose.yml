@@ -1,0 +1,44 @@
+version: '3.8'
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: sqlserver
+    environment:
+      SA_PASSWORD: "Admin2024."
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - ./sql/init:/scripts # Montar scripts de inicialización      
+    networks:
+      - app-network      
+  mssql-tools:
+    image: mcr.microsoft.com/mssql-tools
+    container_name: mssql-tools
+    depends_on:
+      - sqlserver
+    entrypoint: /bin/bash -c "sleep 20 && /opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P Admin2024. -i /scripts/01-create-schema.sql"
+    volumes:
+      - ./sql/init:/scripts  # Volumen con los scripts SQL
+    networks:
+      - app-network
+    # El servicio se elimina automáticamente después de la ejecución
+    restart: "no"
+  api:
+    image: prueba-sistecredito:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api
+    ports:
+      - "5000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=PruebaSisteCredito;User Id=sa;Password=Admin2024.
+    depends_on:
+      - sqlserver
+    networks:
+      - app-network      
+networks:
+  app-network:
+    driver: bridge
